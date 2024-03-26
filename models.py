@@ -76,10 +76,29 @@ class Listing(db.Model):
         nullable=False
     )
 
-    source = db.Column(
+    site = db.Column(
         db.String(15),
         nullable=False
     )
+
+    def serialize(self):
+        """Serialize to dictionary"""
+
+        return {
+            "id": self.id,
+            "date": self.date,
+            "title": self.title,
+            "price": self.price,
+            "city": self.city,
+            "state": self.state,
+            "mileage": self.mileage,
+            "url": self.url,
+            "image": self.image,
+            "insight": self.insight,
+            "first_gen": self.first_gen,
+            "parts": self.parts,
+            "site": self.site,
+        }
 
 
 
