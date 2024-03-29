@@ -4,12 +4,17 @@ from flask import Flask, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 
 from models import db, connect_db, Listing
+from flask_cors import CORS, cross_origin
+
+from datetime import date
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
     "DATABASE_URL", 'postgresql:///insight')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
+
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 connect_db(app)
 
@@ -26,6 +31,24 @@ def get_all_listings():
     else:
         listings = Listing.query.filter(
             Listing.name.ilike(f"%{search}%")).all()
+
+    serialized = [listing.serialize() for listing in listings]
+
+    return jsonify(listings=serialized)
+
+@app.get('/listings/fb')
+def get_all_fb_listings():
+    """Returns list of listings from source fb.
+
+    Can take a 'q' param in querystring to search for listing.
+    """
+    search = request.args.get('q')
+
+    if not search:
+        listings = Listing.query.filter(Listing.date==date.today()).all()
+    else:
+        listings = Listing.query.filter(Listing.date==date.today()).filter(
+            Listing.title.ilike(f"%{search}%")).all()
 
     serialized = [listing.serialize() for listing in listings]
 
