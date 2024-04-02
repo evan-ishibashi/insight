@@ -18,7 +18,7 @@ CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 connect_db(app)
 
-@app.get('/listings')
+@app.get('/listings/all')
 def get_all_listings():
     """Returns list of listings.
 
