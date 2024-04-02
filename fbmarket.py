@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+"""
+This file scrapes the html from facebook marketplace for honda insight car
+listings. It iterates through a list of cities, grabs the info from each
+respective page, and exports the cleaned data into csv file. It then inserts
+the data from those CSVs into my PSQL DB.
+"""
+
 # In[289]:
 
 
@@ -36,10 +43,11 @@ LOCATIONS = [
     "Los Angeles, California",
     "Seattle, Washington",
     "New York, New York",
-    "Jersey City, New Jersey",
+    "Pittsburgh, Pennsylvania",
     "Austin, Texas",
     "Salt Lake City, Utah",
-    "Boulder, Colorado"
+    "Boulder, Colorado",
+    "Nashville, Tennessee"
 
 ]
 
