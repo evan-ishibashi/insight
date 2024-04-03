@@ -74,6 +74,11 @@ if browser.is_element_present_by_css('div[aria-label="Close"]', wait_time=10):
 # MASSIVE LOOP STARTS!!!!!
 
 for i, location in enumerate(LOCATIONS):
+    print("STARTING CYCLE FOR ", location)
+    CITY = location.split(", ")[0]
+    STATE = location.split(", ")[1]
+    STATE_ABBR = location.split(", ")[1][0] + location.split(", ")[1][1].upper()
+
     # In[296]:
 
     if i > 0:
@@ -91,7 +96,7 @@ for i, location in enumerate(LOCATIONS):
         browser.find_by_css('input[aria-label="Location"]').type(Keys.BACKSPACE)
     time.sleep(1)
     browser.find_by_css('input[aria-label="Location"]').type(f'{LOCATIONS[i]}')
-    time.sleep(1)
+    time.sleep(4)
 
 
     # In[306]:
@@ -107,6 +112,7 @@ for i, location in enumerate(LOCATIONS):
 
 
     browser.find_by_css('div[aria-label="Apply"]').click()
+    time.sleep(2)
 
 
     # In[308]:
@@ -116,7 +122,7 @@ for i, location in enumerate(LOCATIONS):
 
     scroll_count = 4
 
-    scroll_delay = 2
+    scroll_delay = 5
 
     for _ in range(scroll_count):
         browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -196,7 +202,9 @@ for i, location in enumerate(LOCATIONS):
 
 
     # regex to filter
-    pattern = re.compile(r'[a-zA-Z ]+[,]\s[A-Z][A-Z]')
+    # pattern for City, State (ex: Los Angeles, CA)
+    location_pattern = re.compile(r'[a-zA-Z -]+[,]\s[A-Z][A-Z]')
+    # pattern for miles (ex: 100K miles)
     miles_pattern = re.compile(r'([0-9.]+)[K]? miles')
 
     # initialize empty list
@@ -204,17 +212,25 @@ for i, location in enumerate(LOCATIONS):
 
     #iterate through the original mileage entries
     for item in miles_list:
-        # miles_list2.append(item)
 
-        if pattern.match(item) and len(miles_list2) >= 1 and pattern.match(miles_list2[-1]):
+        # Current item is location, previous item is location (2 locations in a row)
+        if location_pattern.match(item) and len(miles_list2) >= 1 and location_pattern.match(miles_list2[-1]):
             miles_list2.append('0K miles')
             miles_list2.append(item)
 
-        elif len(item) == 0 and pattern.match(miles_list2[-1]) and len(miles_list2) >=1:
+        # Current item is empty string, Previous item is location (Miles is empty string)
+        elif len(item) == 0 and location_pattern.match(miles_list2[-1]) and len(miles_list2) >=1:
             miles_list2.append('0K miles')
 
-        elif len(miles_list2) >= 1 and pattern.match(miles_list2[-1]) and miles_pattern.match(item) == None:
+        # Previous item is miles, and current item is miles (Missing Location)
+        elif miles_pattern.match(item) and len(miles_list2) >= 1 and miles_pattern.match(miles_list2[-1]):
+            miles_list2.append(f'{CITY}, {STATE_ABBR}')
+            miles_list2.append(item)
+
+        # Previous item is location, and current item does not match (2 locations in a row)
+        elif len(miles_list2) >= 1 and location_pattern.match(miles_list2[-1]) and miles_pattern.match(item) == None:
             miles_list2.append('0K miles')
+
 
         else:
             miles_list2.append(item)
@@ -235,8 +251,7 @@ for i, location in enumerate(LOCATIONS):
     miles_pattern_km = r'(\d+)K km'
     location_pattern = r'[a-zA-Z ]+[,]\s[A-Z][A-Z]'
 
-    city = location.split(", ")[1]
-    full_city_pattern = r'[a-zA-Z ]+[,]\s[' + city + r']{' + f'{len(city)}' + r'}'
+    full_city_pattern = r'[a-zA-Z ]+[,]\s[' + STATE + r']{' + f'{len(STATE)}' + r'}'
 
 
     miles_clean = []
@@ -263,16 +278,16 @@ for i, location in enumerate(LOCATIONS):
 
             if match_location:
                 locations_clean.append(item)
-                print(match_location)
-                print(item)
 
             if match_full_city:
                 locations_clean.append(item)
 
+        else:
+            print('NON-MATCHING MILES/LOCATION',item)
+
 
     # In[319]:
     print("locations_clean length",len(locations_clean))
-    print(locations_clean)
 
 
     # Make Prices into Integer
