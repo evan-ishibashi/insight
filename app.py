@@ -45,7 +45,25 @@ def get_all_fb_listings():
     search = request.args.get('q')
 
     if not search:
-        listings = Listing.query.filter(Listing.date==date.today()).all()
+        listings = Listing.query.filter(Listing.date==date.today()).filter(Listing.site=='fb').all()
+    else:
+        listings = Listing.query.filter(Listing.date==date.today()).filter(
+            Listing.title.ilike(f"%{search}%")).all()
+
+    serialized = [listing.serialize() for listing in listings]
+
+    return jsonify(listings=serialized)
+
+@app.get('/listings/offerup')
+def get_all_offerup_listings():
+    """Returns list of listings from source offerup.
+
+    Can take a 'q' param in querystring to search for listing.
+    """
+    search = request.args.get('q')
+
+    if not search:
+        listings = Listing.query.filter(Listing.date==date.today()).filter(Listing.site=='offerup').all()
     else:
         listings = Listing.query.filter(Listing.date==date.today()).filter(
             Listing.title.ilike(f"%{search}%")).all()

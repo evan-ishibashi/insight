@@ -2,6 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
+DEFAULT_INSIGHT_URL = 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/2001_Honda_Insight_Hybrid_1.0i_%28Interior%29.jpg/800px-2001_Honda_Insight_Hybrid_1.0i_%28Interior%29.jpg?20220806212143'
 
 def connect_db(app):
     """Connect to database."""
@@ -27,7 +28,7 @@ class Listing(db.Model):
     )
 
     title = db.Column(
-        db.String(100),
+        db.String(1000),
         nullable=False
     )
 
@@ -37,12 +38,12 @@ class Listing(db.Model):
     )
 
     city = db.Column(
-        db.String(50),
+        db.String(500),
         nullable=False
     )
 
     state = db.Column(
-        db.String(2),
+        db.String(20),
         nullable=False
     )
 
@@ -52,13 +53,14 @@ class Listing(db.Model):
     )
 
     url = db.Column(
-        db.String(),
-        nullable=False
+        db.String(1000),
+        default=False
     )
 
     image = db.Column(
-        db.String(),
-        nullable=False
+        db.Text,
+        nullable=False,
+        default=DEFAULT_INSIGHT_URL
     )
 
     insight = db.Column(
