@@ -47,7 +47,12 @@ LOCATIONS = [
     "Austin, Texas",
     "Salt Lake City, Utah",
     "Boulder, Colorado",
-    "Nashville, Tennessee"
+    "Chicago, Illinois",
+    "Tampa, Florida",
+    "Minneapolis, Minnesota",
+    "Jackson, Mississippi",
+    "Raleigh, North Carolina",
+
 
 ]
 
