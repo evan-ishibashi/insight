@@ -7,8 +7,8 @@ from datetime import date
 import ast
 import os
 
-db.drop_all()
-db.create_all()
+# db.drop_all()
+# db.create_all()
 
 directory = f'../csv/fb/{date.today()}'
 

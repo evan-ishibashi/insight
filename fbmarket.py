@@ -57,6 +57,7 @@ url = f"{base_url}availability={availability}&deliveryMethod={deliveryMethod}&qu
 # Make new directory for the day if you have not yet
 if not os.path.exists(f'/Users/evanishibashi/Projects/insight/csv/fb/{date.today()}'):
     os.mkdir(f'/Users/evanishibashi/Projects/insight/csv/fb/{date.today()}')
+
 #visit site
 browser.visit(url)
 
