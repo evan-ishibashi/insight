@@ -82,6 +82,11 @@ class Listing(db.Model):
         db.String(15),
         nullable=False
     )
+    year = db.Column(
+        db.Integer,
+        nullable=False,
+        default=0
+    )
 
     def serialize(self):
         """Serialize to dictionary"""
@@ -100,6 +105,7 @@ class Listing(db.Model):
             "first_gen": self.first_gen,
             "parts": self.parts,
             "site": self.site,
+            "year": self.year
         }
 
 

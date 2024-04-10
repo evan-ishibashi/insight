@@ -109,3 +109,21 @@ def get_all_offerup_listings_1g_only():
     serialized = [listing.serialize() for listing in listings]
 
     return jsonify(listings=serialized)
+
+@app.get('/listings/data')
+def get_listing_data():
+    """Returns list of listings for data visualization.
+
+    """
+
+    listings = Listing.query.distinct(
+            Listing.url).all()
+
+    # listings = Listing.query.distinct(
+    #         Listing.url).filter(Listing.first_gen).filter(
+    #         Listing.mileage > 0).filter(Listing.price > 1).order_by(Listing.date.desc()).all()
+
+
+    serialized = [listing.serialize() for listing in listings]
+
+    return jsonify(listings=serialized)

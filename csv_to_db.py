@@ -7,8 +7,8 @@ from datetime import date
 import ast
 import os
 
-# db.drop_all()
-# db.create_all()
+db.drop_all()
+db.create_all()
 
 directory = f'../csv/fb/{date.today()}'
 
@@ -27,7 +27,7 @@ for location_csv in os.listdir(directory):
 
         db.session.bulk_insert_mappings(Listing, clean_listings)
 
-offerup = f'../csv/offerup'
+offerup = f'../csv/offerup/{date.today()}'
 
 for location_csv in os.listdir(offerup):
     full_file_path = os.path.join(offerup,location_csv)

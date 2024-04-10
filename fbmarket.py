@@ -177,37 +177,20 @@ for i, location in enumerate(LOCATIONS):
 
 
 
-
-        # In[312]:
-
-
         print("titles length", len(titles_list))
+
+        # if there are no listings, exit loop to next location.
         if len(titles_list) == 0:
             continue
 
 
 
 
-
-        # In[313]:
-
-
         print("image_list length", len(image_list))
-
-
-        # In[314]:
-
 
         print("miles_list", len(miles_list))
 
-
-        # In[315]:
-
-
         print("urls_list", len(urls_list))
-
-
-        # In[316]:
 
 
         # regex to filter
@@ -240,7 +223,7 @@ for i, location in enumerate(LOCATIONS):
             elif len(miles_list2) >= 1 and location_pattern.match(miles_list2[-1]) and miles_pattern.match(item) == None:
                 miles_list2.append('0K miles')
 
-
+            # if all looks good, just append the item.
             else:
                 miles_list2.append(item)
 
@@ -256,10 +239,17 @@ for i, location in enumerate(LOCATIONS):
 
 
         # Clean Location and Miles Data
+
+        # regex pattern for mileage. Ex: 100K miles
         miles_pattern_miles = r'([0-9.]+)[K]? miles'
+
+        # regex pattern for mileage in km. Ex: 100K km
         miles_pattern_km = r'(\d+)K km'
+
+        # regex pattern for location. Ex: Los Angeles, CA
         location_pattern = r'[a-zA-Z ]+[,]\s[A-Z][A-Z]'
 
+        # regex pattern for a full city / state. Ex: Seattle, Washington
         full_city_pattern = r'[a-zA-Z ]+[,]\s[' + STATE + r']{' + f'{len(STATE)}' + r'}'
 
 
@@ -282,8 +272,6 @@ for i, location in enumerate(LOCATIONS):
 
                 if match_mileage_miles:
                     miles_clean.append(int(float(match_mileage_miles.group(1))) *1000)
-                    # print(match_mileage_miles)
-                    # print(int(float(match_mileage_miles.group(1))) *1000)
 
                 if match_location:
                     locations_clean.append(item)
@@ -294,8 +282,6 @@ for i, location in enumerate(LOCATIONS):
             else:
                 print('NON-MATCHING MILES/LOCATION',item)
 
-
-        # In[319]:
         print("locations_clean length",len(locations_clean))
 
 
@@ -327,19 +313,29 @@ for i, location in enumerate(LOCATIONS):
             first_gen = False
             insight = False
             parts = False
-            years = ["2000", "2001", "2002", "2003", "2004", "2005", "2006", "1st", "first gen"]
+
+            year = 0
+            year_pattern = r'[0-9]{4}'
+            year_match = re.search(year_pattern,titles_list[i])
+            first_gen_years = [2000, 2001, 2002, 2003, 2004, 2005, 2006]
+
+            #Checks for year
+            if year_match:
+                year = int(year_match[0])
+
+            #Checks if insight is actually in the title
+            if "insight" in titles_list[i].lower():
+                insight = True
 
             #Checks if any cars are 2000 - 2006
-            if any(x in titles_list[i] for x in years):
-                first_gen = True
+            if year_match:
+                if any(x == year_match[0] for x in first_gen_years) and insight:
+                    first_gen = True
 
             #Checks if car listing is for parts
             if "part" in titles_list[i].lower():
                 parts = True
 
-            #Checks if insight is actually in the title
-            if "insight" in titles_list[i].lower():
-                insight = True
 
             #Splits up the City and State from location
             city = locations_clean[i].split(', ')[0]
@@ -360,6 +356,7 @@ for i, location in enumerate(LOCATIONS):
             cars_dict["first_gen"] = first_gen
             cars_dict["parts"] = parts
             cars_dict["site"] = "fb"
+            cars_dict["year"] = year
             vehicles_list.append(cars_dict)
 
 
