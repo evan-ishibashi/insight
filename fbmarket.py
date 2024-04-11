@@ -195,7 +195,7 @@ for i, location in enumerate(LOCATIONS):
 
         # regex to filter
         # pattern for City, State (ex: Los Angeles, CA)
-        location_pattern = re.compile(r'[a-zA-Z -]+[,]\s[A-Z][A-Z]')
+        location_pattern = re.compile(r"[a-zA-Z -']+[,]\s[A-Z][A-Z]")
         # pattern for miles (ex: 100K miles)
         miles_pattern = re.compile(r'([0-9.]+)[K]? miles')
 
@@ -250,7 +250,7 @@ for i, location in enumerate(LOCATIONS):
         location_pattern = r'[a-zA-Z ]+[,]\s[A-Z][A-Z]'
 
         # regex pattern for a full city / state. Ex: Seattle, Washington
-        full_city_pattern = r'[a-zA-Z ]+[,]\s[' + STATE + r']{' + f'{len(STATE)}' + r'}'
+        full_city_pattern = r'[a-zA-Z ]+[,]\s[A-Z][a-z]+'
 
 
         miles_clean = []
@@ -283,6 +283,7 @@ for i, location in enumerate(LOCATIONS):
                 print('NON-MATCHING MILES/LOCATION',item)
 
         print("locations_clean length",len(locations_clean))
+        print("miles_clean length",len(miles_clean))
 
 
         # Make Prices into Integer
@@ -292,7 +293,7 @@ for i, location in enumerate(LOCATIONS):
             if price == 'Free':
                 prices_clean.append(0)
             elif price == "·":
-                prices_clean.append("Pending")
+                prices_clean.append(0)
             else:
                 prices_clean.append(int(re.sub(r'[₹,M,X,$,.]','', price)))
 
@@ -329,7 +330,7 @@ for i, location in enumerate(LOCATIONS):
 
             #Checks if any cars are 2000 - 2006
             if year_match:
-                if any(x == year_match[0] for x in first_gen_years) and insight:
+                if any(x == int(year_match[0]) for x in first_gen_years) and insight:
                     first_gen = True
 
             #Checks if car listing is for parts

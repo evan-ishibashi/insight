@@ -19,7 +19,11 @@ zipcode_list = [
     '90012', # Los Angeles
     '94122', # San Francisco
     '10001', # New York
-    '78732', # Austin
+    '98101', # Seattle
+    '97212', # Portland
+    '60601', # Chicago
+    '37211', # Nashville
+    '32034', # Jacksonville
 ]
 
 # Make new directory for the day if you have not yet
