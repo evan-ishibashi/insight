@@ -19,7 +19,8 @@ CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 connect_db(app)
 
 YESTERDAY = date.today() + timedelta(days=-1)
-print("today is ", date.today)
+
+print(app.config['SQLALCHEMY_DATABASE_URI'])
 
 @app.get('/wakeup')
 def wakeup():

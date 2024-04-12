@@ -6,6 +6,20 @@ from models import Listing
 from datetime import date
 import ast
 import os
+from dotenv import load_dotenv
+
+# Import create_engine from SQLAlchemy
+from sqlalchemy import create_engine
+
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Use the DATABASE_URL environment variable
+db_url = os.environ.get('DATABASE_URL')
+engine = create_engine(db_url)
+
+
 
 # db.drop_all()
 # db.create_all()
@@ -27,6 +41,10 @@ for location_csv in os.listdir(directory):
 
         db.session.bulk_insert_mappings(Listing, clean_listings)
 
+        with engine.connect() as conn:
+            conn.execute(Listing.__table__.insert(), clean_listings)
+            conn.commit()
+
 offerup = f'../csv/offerup/{date.today()}'
 
 for location_csv in os.listdir(offerup):
@@ -43,6 +61,10 @@ for location_csv in os.listdir(offerup):
             clean_listings.append(row)
 
         db.session.bulk_insert_mappings(Listing, clean_listings)
+
+        with engine.connect() as conn:
+            conn.execute(Listing.__table__.insert(), clean_listings)
+            conn.commit()
 
 
 db.session.commit()
