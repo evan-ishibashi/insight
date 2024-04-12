@@ -45,9 +45,9 @@ def get_all_fb_listings():
     search = request.args.get('q')
 
     if not search:
-        listings = Listing.query.filter(Listing.date==date.today()).filter(Listing.site=='fb').all()
+        listings = Listing.query.filter(Listing.date>=date.today()).filter(Listing.site=='fb').all()
     else:
-        listings = Listing.query.filter(Listing.date==date.today()).filter(
+        listings = Listing.query.filter(Listing.date>=date.today()).filter(
             Listing.title.ilike(f"%{search}%")).all()
 
     serialized = [listing.serialize() for listing in listings]
