@@ -95,8 +95,6 @@ for i, location in enumerate(LOCATIONS):
 
 
 
-        # In[305]:
-
         browser.find_by_css('input[aria-label="Location"]').click()
         time.sleep(1)
         while (len(browser.find_by_css('input[aria-label="Location"]').value)) > 0:
@@ -106,23 +104,15 @@ for i, location in enumerate(LOCATIONS):
         time.sleep(4)
 
 
-        # In[306]:
-
-
         browser.find_by_css('input[aria-label="Location"]').type(Keys.DOWN)
         time.sleep(1)
         browser.find_by_css('input[aria-label="Location"]').type(Keys.ENTER)
         time.sleep(1)
 
 
-        # In[307]:
-
 
         browser.find_by_css('div[aria-label="Apply"]').click()
         time.sleep(2)
-
-
-        # In[308]:
 
 
         # scroll down to load more results
@@ -137,8 +127,6 @@ for i, location in enumerate(LOCATIONS):
             time.sleep(scroll_delay)
 
 
-        # In[309]:
-
 
         # Parse HTML
         html = browser.html
@@ -146,15 +134,6 @@ for i, location in enumerate(LOCATIONS):
         #create BS object from HTML
         market_soup = soup(html, "html.parser")
 
-
-        # In[310]:
-
-
-        # End browsing session
-        # browser.quit()
-
-
-        # In[311]:
 
 
         # Extract all the info, put into lists
