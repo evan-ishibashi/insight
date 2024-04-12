@@ -6,7 +6,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, Listing
 from flask_cors import CORS, cross_origin
 
-from datetime import date
+from datetime import date, timedelta
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
@@ -17,6 +17,15 @@ app.config['SQLALCHEMY_ECHO'] = True
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 connect_db(app)
+
+YESTERDAY = date.today() + timedelta(days=-1)
+
+@app.get('/wakeup')
+def wakeup():
+    """Pokes the server to spin up
+    """
+
+    return "waking up"
 
 @app.get('/listings/all')
 def get_all_listings():
@@ -45,9 +54,9 @@ def get_all_fb_listings():
     search = request.args.get('q')
 
     if not search:
-        listings = Listing.query.filter(Listing.date>=date.today()).filter(Listing.site=='fb').all()
+        listings = Listing.query.filter(Listing.date>=YESTERDAY).filter(Listing.site=='fb').all()
     else:
-        listings = Listing.query.filter(Listing.date>=date.today()).filter(
+        listings = Listing.query.filter(Listing.date>=YESTERDAY).filter(
             Listing.title.ilike(f"%{search}%")).all()
 
     serialized = [listing.serialize() for listing in listings]
@@ -63,10 +72,12 @@ def get_all_fb_listings_1g_only():
     search = request.args.get('q')
 
     if not search:
-        listings = Listing.query.filter(Listing.date==date.today()).filter(
+        listings = Listing.query.distinct(
+            Listing.url).filter(Listing.date>=YESTERDAY).filter(
             Listing.site=='fb').filter(Listing.first_gen).all()
     else:
-        listings = Listing.query.filter(Listing.date==date.today()).filter(
+        listings = Listing.query.distinct(
+            Listing.url).filter(Listing.date>=YESTERDAY).filter(
             Listing.title.ilike(f"%{search}%")).filter(Listing.first_gen).all()
 
     serialized = [listing.serialize() for listing in listings]
@@ -100,10 +111,12 @@ def get_all_offerup_listings_1g_only():
     search = request.args.get('q')
 
     if not search:
-        listings = Listing.query.filter(Listing.date==date.today()).filter(
+        listings = Listing.query.distinct(
+            Listing.url).filter(Listing.date>=YESTERDAY).filter(
             Listing.site=='offerup').filter(Listing.first_gen).all()
     else:
-        listings = Listing.query.filter(Listing.date==date.today()).filter(
+        listings = Listing.query.distinct(
+            Listing.url).filter(Listing.date>=YESTERDAY).filter(
             Listing.title.ilike(f"%{search}%")).filter(Listing.first_gen).all()
 
     serialized = [listing.serialize() for listing in listings]
