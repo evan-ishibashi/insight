@@ -59,3 +59,5 @@ abbreviation_to_name = {
     "PR": "Puerto Rico PR",
     "VI": "U.S. Virgin Islands",
 }
+
+name_to_abbreviation = {v: k for k, v in abbreviation_to_name.items()}

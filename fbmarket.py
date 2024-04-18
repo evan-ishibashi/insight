@@ -21,6 +21,7 @@ import pandas as pd
 import time
 from datetime import date
 from selenium.webdriver.common.keys import Keys
+from state_name_to_abbr import name_to_abbreviation
 
 
 # In[290]:
@@ -83,7 +84,7 @@ for i, location in enumerate(LOCATIONS):
     print("STARTING CYCLE FOR ", location)
     CITY = location.split(", ")[0]
     STATE = location.split(", ")[1]
-    STATE_ABBR = location.split(", ")[1][0] + location.split(", ")[1][1].upper()
+    STATE_ABBR = name_to_abbreviation[STATE]
 
     # In[296]:
     try:
@@ -160,6 +161,7 @@ for i, location in enumerate(LOCATIONS):
 
         # if there are no listings, exit loop to next location.
         if len(titles_list) == 0:
+            print("No listings for this location. Continuing to next location")
             continue
 
 
@@ -174,9 +176,11 @@ for i, location in enumerate(LOCATIONS):
 
         # regex to filter
         # pattern for City, State (ex: Los Angeles, CA)
-        location_pattern = re.compile(r"[a-zA-Z -']+[,]\s[A-Z][A-Z]")
+        location_pattern = re.compile(r"[a-zA-Z -']+[,]\s[A-Z]")
         # pattern for miles (ex: 100K miles)
         miles_pattern = re.compile(r'([0-9.]+)[K]? miles')
+        # regex pattern for the item after the last valid piece of mileage data.
+        login_or_sign = re.compile(r'Log in or sign up for Facebook')
 
         # initialize empty list
         miles_list2 = []
@@ -201,6 +205,10 @@ for i, location in enumerate(LOCATIONS):
             # Previous item is location, and current item does not match (2 locations in a row)
             elif len(miles_list2) >= 1 and location_pattern.match(miles_list2[-1]) and miles_pattern.match(item) == None:
                 miles_list2.append('0K miles')
+
+            # Last listing does not have mileage, so append 0K
+            elif len(miles_list2) >= 1 and login_or_sign.match(item) and location_pattern.match(miles_list2[-1]):
+                miles_list2.append('0k miles')
 
             # if all looks good, just append the item.
             else:
@@ -229,7 +237,8 @@ for i, location in enumerate(LOCATIONS):
         location_pattern = r'[a-zA-Z ]+[,]\s[A-Z][A-Z]'
 
         # regex pattern for a full city / state. Ex: Seattle, Washington
-        full_city_pattern = r'[a-zA-Z ]+[,]\s[A-Z][a-z]+'
+        full_state_pattern_one = r'[a-zA-Z ]+[,]\s[A-Z][a-z]+'
+        full_state_pattern_two = r'[a-zA-Z ]+[,]\s[A-Z][a-z]+\s[A-Z][a-z]+'
 
 
         miles_clean = []
@@ -243,9 +252,11 @@ for i, location in enumerate(LOCATIONS):
 
             match_location = re.search(location_pattern, item)
 
-            match_full_city = re.search(full_city_pattern, item)
+            match_full_state_one = re.search(full_state_pattern_one, item)
 
-            if match_miles_km or match_mileage_miles or match_location or match_full_city:
+            match_full_state_two = re.search(full_state_pattern_two, item)
+
+            if match_miles_km or match_mileage_miles or match_location or match_full_state_one or match_full_state_two:
                 if match_miles_km:
                     miles_clean.append(int(match_miles_km.group(1)) *1000)
 
@@ -255,14 +266,18 @@ for i, location in enumerate(LOCATIONS):
                 if match_location:
                     locations_clean.append(item)
 
-                if match_full_city:
-                    locations_clean.append(item)
+                if match_full_state_one or match_full_state_two:
+                    full_state = item.split(', ')[1]
+                    locations_clean.append(name_to_abbreviation[full_state])
 
             else:
                 print('NON-MATCHING MILES/LOCATION',item)
 
         print("locations_clean length",len(locations_clean))
         print("miles_clean length",len(miles_clean))
+
+        if len(locations_clean) != len(miles_clean):
+            raise LocationMilesError
 
 
         # Make Prices into Integer
@@ -376,8 +391,11 @@ for i, location in enumerate(LOCATIONS):
 
         filtered_df.to_csv(csv_file_path, index=False)
 
-    except NameError :
+    except NameError:
         print(f'something happened during data capture for {location}')
+
+    except LocationMilesError:
+        print("locations length does not match mileage length.")
 
     # In[ ]:
 
