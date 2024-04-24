@@ -394,11 +394,6 @@ for i, location in enumerate(LOCATIONS):
     except NameError:
         print(f'something happened during data capture for {location}')
 
-    except LocationMilesError:
-        print("locations length does not match mileage length.")
-
-    # In[ ]:
-
 # End browsing session
 browser.quit()
 

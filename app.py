@@ -19,6 +19,7 @@ CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 connect_db(app)
 
 YESTERDAY = date.today() + timedelta(days=-1)
+LAST_MONTH = date.today() + timedelta(days=-31)
 
 print(app.config['SQLALCHEMY_DATABASE_URI'])
 
@@ -125,18 +126,17 @@ def get_all_offerup_listings_1g_only():
 
     return jsonify(listings=serialized)
 
-@app.get('/listings/data')
-def get_listing_data():
+@app.get('/listings/chart')
+def get_listing_chart_data():
     """Returns list of listings for data visualization.
 
     """
 
     listings = Listing.query.distinct(
-            Listing.url).all()
-
-    # listings = Listing.query.distinct(
-    #         Listing.url).filter(Listing.first_gen).filter(
-    #         Listing.mileage > 0).filter(Listing.price > 1).order_by(Listing.date.desc()).all()
+            Listing.url).filter(Listing.date>=LAST_MONTH).filter(
+            Listing.first_gen).filter(Listing.mileage>0).filter(
+            Listing.parts.is_(False)).filter(Listing.year>0).filter(
+            Listing.price > 50).all()
 
 
     serialized = [listing.serialize() for listing in listings]

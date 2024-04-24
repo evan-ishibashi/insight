@@ -15,7 +15,6 @@ the data from those CSVs into my PSQL DB.
 #Need to pip install selenium
 import os
 from splinter import Browser
-import pandas as pd
 import time
 from datetime import date
 from selenium.webdriver.common.keys import Keys
@@ -40,7 +39,8 @@ availability = "in%20stock"
 # List of cities
 LOCATIONS = [
     "San Francisco, California",
-    "Los Angeles, California",
+    "Santa Clarita, California",
+    "San Diego, California",
     "Seattle, Washington",
     "New York, New York",
     "Pittsburgh, Pennsylvania",
@@ -52,8 +52,6 @@ LOCATIONS = [
     "Minneapolis, Minnesota",
     "Jackson, Mississippi",
     "Raleigh, North Carolina",
-
-
 ]
 
 #full url
@@ -67,14 +65,10 @@ if not os.path.exists(f'/Users/evanishibashi/Projects/insight/csv/fb/{date.today
 browser.visit(url)
 
 
-# In[292]: Exit out of pop up
-
-
+# Exit out of pop up
 if browser.is_element_present_by_css('div[aria-label="Close"]', wait_time=10):
     # Click on the element once it's found
     browser.find_by_css('div[aria-label="Close"]').first.click()
-
-
 
 
 # MASSIVE LOOP STARTS!!!!!
@@ -151,7 +145,7 @@ for i, location in enumerate(LOCATIONS):
 
 
     # Make URLS full url
-    urls_clean = Fb_market_utils.clean_urls
+    urls_clean = Fb_market_utils.clean_urls(urls_list)
 
     if len(locations_clean) != len(titles_list):
         print("location data length not equal to ", len(titles_list))
@@ -173,16 +167,7 @@ for i, location in enumerate(LOCATIONS):
                                     locations_clean, mileage_clean,
                                     prices_clean, urls_clean, image_list)
 
-
-    vehicles_df = pd.DataFrame(vehicles_list)
-
-
-    filtered_df = vehicles_df[vehicles_df['insight'] == True]
-
-
-    csv_file_path = f'/Users/evanishibashi/Projects/insight/csv/fb/{date.today()}/{location}.csv'
-
-    filtered_df.to_csv(csv_file_path, index=False)
+    Fb_market_utils.data_to_csv(vehicles_list, location)
 
 # End browsing session
 browser.quit()

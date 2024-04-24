@@ -8,6 +8,7 @@ from models import Listing
 import ast
 import os
 from dotenv import load_dotenv
+import pandas as pd
 
 # Import create_engine from SQLAlchemy
 from sqlalchemy import create_engine
@@ -147,7 +148,7 @@ class Fb_market_utils():
 
         if len(locations_clean) != len(mileage_clean):
             print("Locations list length does not match mileage list length")
-            raise Exception
+            print()
 
         print("successfully cleaned and split locations / mileage")
         return (locations_clean, mileage_clean)
@@ -163,8 +164,10 @@ class Fb_market_utils():
                 prices_clean.append(0)
             elif price == "·":
                 prices_clean.append(0)
+            elif price == "$12,345":
+                prices_clean.append(0)
             else:
-                prices_clean.append(int(re.sub(r'[₹,M,X,$,.]','', price)))
+                prices_clean.append(int(re.sub(r'[₹,A-Z,a-z,$,.]','', price)))
 
         print("Successfully Cleaned Prices")
         return prices_clean
@@ -196,6 +199,7 @@ class Fb_market_utils():
             year_pattern = r'[0-9]{4}'
             year_match = re.search(year_pattern,titles_list[i])
             first_gen_years = [2000, 2001, 2002, 2003, 2004, 2005, 2006]
+            parts_list = ["part", "wheel", "mirror", "door", "piece"]
 
             #Checks for year
             if year_match:
@@ -211,7 +215,7 @@ class Fb_market_utils():
                     first_gen = True
 
             #Checks if car listing is for parts
-            if "part" in titles_list[i].lower():
+            if any(x == parts_list for x in titles_list[i].lower()):
                 parts = True
 
 
@@ -238,6 +242,17 @@ class Fb_market_utils():
             vehicles_list.append(cars_dict)
 
         return vehicles_list
+
+    def data_to_csv(vehicles_list, location):
+        vehicles_df = pd.DataFrame(vehicles_list)
+
+
+        filtered_df = vehicles_df[vehicles_df['insight'] == True]
+
+
+        csv_file_path = f'/Users/evanishibashi/Projects/insight/csv/fb/{date.today()}/{location}.csv'
+
+        filtered_df.to_csv(csv_file_path, index=False)
 
     def csv_to_db():
         # Load environment variables from .env file
