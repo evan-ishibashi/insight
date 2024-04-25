@@ -11,108 +11,119 @@ from app import db
 from models import Parts
 import ast
 
+
 class Lkq():
     """Class for scraping LKQ Car Parts"""
 
     base_url = "https://www.lkqpickyourpart.com"
     locations = {
 
-        'huntsville-1223':'Huntsville, AL',
-        'anaheim-1265':'Anaheim, CA',
-        'bakersfield-1260':'Bakersfield, CA',
-        'rialto-1284':'Rialto, CA',
-        'chula-vista-1264':'Chula Vista, CA',
-        'fontana-1285':'Fontana, CA',
-        'hesperia-1292':'Hesperia, CA',
-        'monrovia-1281':'Monrovia, CA',
-        'oceanside-1286':'Oceanside, CA',
-        'ontario-1280':'Ontario, CA',
-        'riverside-1290':'Riverside, CA',
-        'san-bernardino-1291':'San Bernadino, CA',
-        'stanton-1268':'Stanton, CA',
-        'sun-valley-1263':'Sun Valley, CA',
-        'thousand-palms-1289':'Thousand Palms, CA',
-        'victorville-1287':'Victorville, CA',
-        'wilmington-help-yourself-1262':'Wilmington, CA',
-        'aurora-1230':'Aurora, CO',
-        'central-1231':'Denver, CO',
-        'bradenton-1185':'Bradenton, FL',
-        'clearwater-1190':'Clearwater, FL',
-        'ft-lauderdale-1198':'Davie, FL',
-        'daytona-1225':'Daytona Beach, FL',
-        'gainesville-1224':'Gainesville, FL',
-        'largo-1189':'Largo, FL',
-        'orlando-1134':'Orlando, FL',
-        'tampa-1180':'Tampa, FL',
-        'west-palm-beach-1196':'West Palm Beach, FL',
-        'fayetteville-1229':'Fayetteville, GA',
-        'savannah-1163':'Savannah, GA',
-        'blue-island-1582':'Blue Island, IL',
-        'chicago-1581':'Chicago, IL',
-        'chicago-south-1585':'Chicago South, IL',
-        'rockford-1250':'Rockford, IL',
-        'st-louis-1586':'Washington Park, IL',
-        'fort-wayne-1254':'Fort Wayne, IN',
-        'south-bend-1255':'South Bend, IN',
-        'wichita-1246':'Wichita, KS',
-        'baltimore-hawkins-1207':'Hawkins, MD',
-        'baltimore-1205':'Baltimore, MD',
-        'edgewood-1209':'Edgewood, MD',
-        'holland-1346':'Holland, MI',
-        'grand-rapids-1348':'Wayland, MI',
-        'charlotte-1228':'Charlotte, NC',
-        'raleigh-1168':'Clayton, NC',
-        'durham-1142':'Durham, NC',
-        'greensboro-1226':'Greensboro, NC',
-        'east-nc-1227':'East NC, NC',
-        'cincinnati-1253':'Cincinnati, OH',
-        'dayton-1257':'Dayton, OH',
-        'oklahoma-city-1245':'Oklahoma City, OK',
-        'tulsa-1746':'Tulsa, OK',
-        'greer-1213':'Greer, SC',
-        'greenville-1212':'Greensville, SC',
-        'charleston-1220':'Charleston, SC',
-        'chattanooga-1217':'Chattanooga, SC',
-        'memphis-1215':'Memphis, TN',
-        'nashville-1218':'Nashville, TN',
-        'austin-1234':'Austin, TX',
-        'houston-wallisville-1236':'Houston Wallisville, TX',
-        'houston-northville-1235':'Houston Northville, TX',
-        'houston-sw-1239':'Houston SW, TX',
-        'milwaukee-1256':'Millwaukee, WI',
+        'huntsville-1223': 'Huntsville, AL',
+        'anaheim-1265': 'Anaheim, CA',
+        'bakersfield-1260': 'Bakersfield, CA',
+        'rialto-1284': 'Rialto, CA',
+        'chula-vista-1264': 'Chula Vista, CA',
+        'fontana-1285': 'Fontana, CA',
+        'hesperia-1292': 'Hesperia, CA',
+        'monrovia-1281': 'Monrovia, CA',
+        'oceanside-1286': 'Oceanside, CA',
+        'ontario-1280': 'Ontario, CA',
+        'riverside-1290': 'Riverside, CA',
+        'san-bernardino-1291': 'San Bernadino, CA',
+        'stanton-1268': 'Stanton, CA',
+        'sun-valley-1263': 'Sun Valley, CA',
+        'thousand-palms-1289': 'Thousand Palms, CA',
+        'victorville-1287': 'Victorville, CA',
+        'wilmington-help-yourself-1262': 'Wilmington, CA',
+        'aurora-1230': 'Aurora, CO',
+        'central-1231': 'Denver, CO',
+        'bradenton-1185': 'Bradenton, FL',
+        'clearwater-1190': 'Clearwater, FL',
+        'ft-lauderdale-1198': 'Davie, FL',
+        'daytona-1225': 'Daytona Beach, FL',
+        'gainesville-1224': 'Gainesville, FL',
+        'largo-1189': 'Largo, FL',
+        'orlando-1134': 'Orlando, FL',
+        'tampa-1180': 'Tampa, FL',
+        'west-palm-beach-1196': 'West Palm Beach, FL',
+        'fayetteville-1229': 'Fayetteville, GA',
+        'savannah-1163': 'Savannah, GA',
+        'blue-island-1582': 'Blue Island, IL',
+        'chicago-1581': 'Chicago, IL',
+        'chicago-south-1585': 'Chicago South, IL',
+        'rockford-1250': 'Rockford, IL',
+        'st-louis-1586': 'Washington Park, IL',
+        'fort-wayne-1254': 'Fort Wayne, IN',
+        'south-bend-1255': 'South Bend, IN',
+        'wichita-1246': 'Wichita, KS',
+        'baltimore-hawkins-1207': 'Hawkins, MD',
+        'baltimore-1205': 'Baltimore, MD',
+        'edgewood-1209': 'Edgewood, MD',
+        'holland-1346': 'Holland, MI',
+        'grand-rapids-1348': 'Wayland, MI',
+        'charlotte-1228': 'Charlotte, NC',
+        'raleigh-1168': 'Clayton, NC',
+        'durham-1142': 'Durham, NC',
+        'greensboro-1226': 'Greensboro, NC',
+        'east-nc-1227': 'East NC, NC',
+        'cincinnati-1253': 'Cincinnati, OH',
+        'dayton-1257': 'Dayton, OH',
+        'oklahoma-city-1245': 'Oklahoma City, OK',
+        'tulsa-1746': 'Tulsa, OK',
+        'greer-1213': 'Greer, SC',
+        'greenville-1212': 'Greensville, SC',
+        'charleston-1220': 'Charleston, SC',
+        'chattanooga-1217': 'Chattanooga, SC',
+        'memphis-1215': 'Memphis, TN',
+        'nashville-1218': 'Nashville, TN',
+        'austin-1234': 'Austin, TX',
+        'houston-wallisville-1236': 'Houston Wallisville, TX',
+        'houston-northville-1235': 'Houston Northville, TX',
+        'houston-sw-1239': 'Houston SW, TX',
+        'milwaukee-1256': 'Millwaukee, WI',
     }
 
     def create_browser():
+        """Creates and returns Chrome Browser Instance"""
         # Set up splinter
         browser = Browser('chrome')
 
         return browser
 
     def navigate_browser(browser, search_term, location):
+        """Takes in:
+            browser instance
+            search term (ex: 'honda insight')
+            location (Lkq.locations)
+
+            Navigates to LKQ location with search term
+
+        """
+
         # base url
-        base_url = "https://www.lkqpickyourpart.com/inventory/"
+        base_url = Lkq.base_url + "/inventory/"
 
         # search parameters
         split_term = search_term.split(" ")
         search = '+'.join(split_term)
 
-        #full url
+        # full url
         url = f"{base_url}/inventory/{location}/?search={search}"
 
         # Make new directory for the day if you have not yet
         if not os.path.exists(f'/Users/evanishibashi/Projects/insight/csv/lkq/{date.today()}'):
-            os.mkdir(f'/Users/evanishibashi/Projects/insight/csv/lkq/{date.today()}')
+            os.mkdir(
+                f'/Users/evanishibashi/Projects/insight/csv/lkq/{date.today()}')
 
-        #visit site
+        # visit site
         browser.visit(url)
 
-        return browser
-
     def get_html(browser):
+        """Scrapes HTML from current browser, returns BS object"""
         # Parse HTML
         html = browser.html
 
-        #create BS object from HTML
+        # create BS object from HTML
         market_soup = soup(html, "html.parser")
 
         return market_soup
@@ -121,8 +132,10 @@ class Lkq():
         """parses html into titles, prices, locations/mileage, images, urls"""
 
         # Extract all the info, put into lists
-        listing_cards = market_soup.find_all('div', class_="pypvi_details text--small")
-        img_elements = market_soup.find_all('a', class_="fancybox-thumb pypvi_image")
+        listing_cards = market_soup.find_all(
+            'div', class_="pypvi_details text--small")
+        img_elements = market_soup.find_all(
+            'a', class_="fancybox-thumb pypvi_image")
         img_list = [element.get('href') for element in img_elements]
         div_tags = [listing.find_all("div") for listing in listing_cards]
         titles_elements = [listing.find("a") for listing in listing_cards]
@@ -130,10 +143,9 @@ class Lkq():
         url_list = [element.get('href') for element in titles_elements]
         color_list = []
         vin_list = []
-        section_list =[]
+        section_list = []
         stocknum_list = []
-        available_list =[]
-
+        available_list = []
 
         for groups in div_tags:
             for i, div in enumerate(groups):
@@ -151,6 +163,8 @@ class Lkq():
         return (title_list, url_list, color_list, vin_list, section_list, stocknum_list, available_list, img_list)
 
     def clean_titles(title_list):
+        """Cleans and returns title list"""
+
         clean_title_list = []
         for title in title_list:
             split_title = title.split('\xa0')
@@ -160,19 +174,24 @@ class Lkq():
         return clean_title_list
 
     def clean_urls(url_list):
+        """Appends and returns url list"""
         clean_url_list = [Lkq.base_url + url for url in url_list]
         return clean_url_list
 
     def clean_colors(color_list):
+        """Cleans and returns color list"""
         clean_color_list = [color.split(' ')[1] for color in color_list]
         return clean_color_list
 
     def clean_vins(vin_list):
+        """Cleans and returns vin list"""
         clean_vin_list = [vin.split(' ')[1] for vin in vin_list]
         return clean_vin_list
 
     def clean_sections(section_list):
-        split = [string.split('\n                    \xa0\xa0\n                    ') for string in section_list]
+        """Cleans and returns section, row, space lists"""
+        split = [string.split(
+            '\n                    \xa0\xa0\n                    ') for string in section_list]
         clean_section_list = []
         clean_row_list = []
         clean_space_list = []
@@ -192,24 +211,32 @@ class Lkq():
         return (clean_section_list, clean_row_list, clean_space_list)
 
     def clean_stocknums(stocknum_list):
-        clean_stocknum_list = [stocknum.split(' ')[1] for stocknum in stocknum_list]
+        """Cleans and returns stocknum list"""
+        clean_stocknum_list = [stocknum.split(
+            ' ')[1] for stocknum in stocknum_list]
         return clean_stocknum_list
 
     def clean_availables(available_list):
+        """Cleans and returns available date list"""
         date_format = '%m/%d/%Y'
-        split_available_date_list = [available.split('\n')[1] for available in available_list]
-        clean_available_date_list = [datetime.strptime(date_str, date_format) for date_str in split_available_date_list]
-
+        split_available_date_list = [available.split(
+            '\n')[1] for available in available_list]
+        clean_available_date_list = [datetime.strptime(
+            date_str, date_format) for date_str in split_available_date_list]
 
         return clean_available_date_list
 
     def clean_imgs(img_list):
+        """Cleans and returns image list"""
         clean_img_list = [img.split(' ')[0] for img in img_list]
         return clean_img_list
 
     def organize_data(location, clean_titles, clean_url_list, clean_color_list, clean_vin_list,
                       clean_section_list, clean_row_list, clean_space_list, clean_available_date_list, img_list):
-        # add all values to a list of dictionaries
+        """Takes in organized lists of equal length, and organizes into a list
+        of vehicle dicts
+
+        returns list"""
 
         vehicles_list = []
 
@@ -218,19 +245,16 @@ class Lkq():
 
             year = 0
             year_pattern = r'[0-9]{4}'
-            year_match = re.search(year_pattern,clean_titles[i])
+            year_match = re.search(year_pattern, clean_titles[i])
 
-            #Checks for year
+            # Checks for year
             if year_match:
                 year = int(year_match[0])
 
-
-            #Splits up the City and State from location
+            # Splits up the City and State from location
             split_location = Lkq.locations[location].split(', ')
             city = split_location[0]
             state = split_location[-1]
-
-
 
             # Map out key value pairs
             cars_dict["date"] = date.today()
@@ -251,18 +275,17 @@ class Lkq():
 
         return vehicles_list
 
-
     def data_to_csv(vehicles_list, path):
         """Converts Dictionary of Vehicle Listings to CSV. Takes in the Dict
         of vehicles, and the desired path that you want to store your file on"""
         vehicles_df = pd.DataFrame(vehicles_list)
-
 
         csv_file_path = path
 
         vehicles_df.to_csv(csv_file_path, index=False)
 
     def csv_to_db():
+        """Inserts CSV data into DB"""
         # Load environment variables from .env file
         load_dotenv()
 
@@ -270,19 +293,18 @@ class Lkq():
         db_url = os.environ.get('DATABASE_URL')
         engine = create_engine(db_url)
 
-
         directory = f'../csv/lkq/{date.today()}'
 
         for location_csv in os.listdir(directory):
-            full_file_path = os.path.join(directory,location_csv)
+            full_file_path = os.path.join(directory, location_csv)
 
             with open(full_file_path) as fb_listings:
                 clean_listings = []
                 csv_reader = DictReader(fb_listings)
                 for row in csv_reader:
-                    #convert string boolean values to actual Boolean
+                    # convert string boolean values to actual Boolean
                     for key, value in row.items():
-                        if value.lower() in ['true','false']:
+                        if value.lower() in ['true', 'false']:
                             row[key] = ast.literal_eval(value.title())
                     clean_listings.append(row)
 
@@ -294,10 +316,18 @@ class Lkq():
 
         db.session.commit()
 
+
 class Lkq_insight(Lkq):
+    """Class extending Lkq, but accounts for 1st gen Honda insights"""
+
+    first_gen_years = [2000, 2001, 2002, 2003, 2004, 2005, 2006]
+
     def organize_data(location, clean_titles, clean_url_list, clean_color_list, clean_vin_list,
                       clean_section_list, clean_row_list, clean_space_list, clean_available_date_list, img_list):
-        # add all values to a list of dictionaries
+        """Takes in organized lists of equal length, and organizes into a list
+        of vehicle dicts, while filtering out 1st Gen Honda Insights
+
+        returns list"""
 
         vehicles_list = []
 
@@ -307,23 +337,20 @@ class Lkq_insight(Lkq):
 
             year = 0
             year_pattern = r'[0-9]{4}'
-            year_match = re.search(year_pattern,clean_titles[i])
-            first_gen_years = [2000, 2001, 2002, 2003, 2004, 2005, 2006]
+            year_match = re.search(year_pattern, clean_titles[i])
 
-            #Checks for year
+            # Checks for year
             if year_match:
                 year = int(year_match[0])
 
-            #Checks if any cars are 2000 - 2006
+            # Checks if any cars are 2000 - 2006
             if year_match:
-                if any(x == int(year_match[0]) for x in first_gen_years):
+                if any(x == int(year_match[0]) for x in Lkq_insight.first_gen_years):
                     first_gen = True
 
-            #Splits up the City and State from location
+            # Splits up the City and State from location
             city = location.split(', ')[0]
             state = location.split(', ')[-1]
-
-
 
             # Map out key value pairs
             cars_dict["date"] = date.today()
@@ -346,12 +373,9 @@ class Lkq_insight(Lkq):
         return vehicles_list
 
     def data_to_csv(vehicles_list, location):
+        """Data to csv for specific project"""
         vehicles_df = pd.DataFrame(vehicles_list)
-
 
         csv_file_path = f'/Users/evanishibashi/Projects/insight/csv/lkq/{date.today()}/{location}.csv'
 
         vehicles_df.to_csv(csv_file_path, index=False)
-
-
-

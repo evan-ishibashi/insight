@@ -1,5 +1,3 @@
-"""Inserts csv files for today into local and online db."""
-
 from csv import DictReader
 from app import db
 from models import Listing
@@ -20,22 +18,20 @@ db_url = os.environ.get('DATABASE_URL')
 engine = create_engine(db_url)
 
 
-
-# db.drop_all()
-# db.create_all()
+"""Run to insert fb/offerup csv files for today into local and online db."""
 
 directory = f'../csv/fb/{date.today()}'
 
 for location_csv in os.listdir(directory):
-    full_file_path = os.path.join(directory,location_csv)
+    full_file_path = os.path.join(directory, location_csv)
 
     with open(full_file_path) as fb_listings:
         clean_listings = []
         csv_reader = DictReader(fb_listings)
         for row in csv_reader:
-            #convert string boolean values to actual Boolean
+            # convert string boolean values to actual Boolean
             for key, value in row.items():
-                if value.lower() in ['true','false']:
+                if value.lower() in ['true', 'false']:
                     row[key] = ast.literal_eval(value.title())
             clean_listings.append(row)
 
@@ -48,15 +44,15 @@ for location_csv in os.listdir(directory):
 offerup = f'../csv/offerup/{date.today()}'
 
 for location_csv in os.listdir(offerup):
-    full_file_path = os.path.join(offerup,location_csv)
+    full_file_path = os.path.join(offerup, location_csv)
 
     with open(full_file_path) as fb_listings:
         clean_listings = []
         csv_reader = DictReader(fb_listings)
         for row in csv_reader:
-            #convert string boolean values to actual Boolean
+            # convert string boolean values to actual Boolean
             for key, value in row.items():
-                if value.lower() in ['true','false']:
+                if value.lower() in ['true', 'false']:
                     row[key] = ast.literal_eval(value.title())
             clean_listings.append(row)
 

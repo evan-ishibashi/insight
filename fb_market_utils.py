@@ -9,34 +9,97 @@ import ast
 import os
 from dotenv import load_dotenv
 import pandas as pd
-
-# Import create_engine from SQLAlchemy
+from splinter import Browser
 from sqlalchemy import create_engine
+
 
 class Fb_market_utils():
     """Class for scraping FB Marketplace"""
 
+    # List of cities to search (non-exhaustive), must be City, State
+    LOCATIONS = [
+        "San Francisco, California",
+        "Santa Clarita, California",
+        "San Diego, California",
+        "Seattle, Washington",
+        "New York, New York",
+        "Pittsburgh, Pennsylvania",
+        "Austin, Texas",
+        "Salt Lake City, Utah",
+        "Boulder, Colorado",
+        "Chicago, Illinois",
+        "Tampa, Florida",
+        "Minneapolis, Minnesota",
+        "Jackson, Mississippi",
+        "Raleigh, North Carolina",
+    ]
+
+    def create_browser():
+        """Creates Chrome Browser Instance"""
+        # Set up splinter
+        browser = Browser('chrome')
+
+        return browser
+
+    def set_up(browser):
+        """Set up before looping through marketplace"""
+        # base url
+        base_url = "https://www.facebook.com/marketplace/sanfrancisco/search?"
+
+        # search parameters
+        deliveryMethod = "local_pick_up"
+        query = "honda%20insight"
+        availability = "in%20stock"
+
+        # full url
+        url = f"{base_url}availability={availability}&deliveryMethod={deliveryMethod}&query={query}"
+
+        # Make new directory for the day if you have not yet
+        if not os.path.exists(f'/Users/evanishibashi/Projects/insight/csv/fb/{date.today()}'):
+            os.mkdir(
+                f'/Users/evanishibashi/Projects/insight/csv/fb/{date.today()}')
+
+        # visit site
+        browser.visit(url)
+
+        # Exit out of pop up
+        if browser.is_element_present_by_css('div[aria-label="Close"]', wait_time=10):
+            # Click on the element once it's found
+            browser.find_by_css('div[aria-label="Close"]').first.click()
+
     def parse_html(html):
         """parses html into titles, prices, locations/mileage, images, urls"""
-        #create BS object from HTML
+        # create BS object from HTML
         market_soup = soup(html, "html.parser")
 
-        # Extract all the info, put into lists
-        titles_div = market_soup.find_all('span', class_="x1lliihq x6ikm8r x10wlt62 x1n2onr6")
-        titles_list = [title.text.strip() for title in titles_div]
-        titles_list.pop(0)
-        titles_list.pop(0)
+        # Finds all Listing Cards, then looks for the title div on each card, accounts for missing title edge case
+        card_div = market_soup.find_all(
+            'div', class_="x9f619 x78zum5 xdt5ytf x1qughib x1rdy4ex xz9dl7a xsag5q8 xh8yej3 xp0eagm x1nrcals")
+        titles_list = []
+        for title_div in card_div:
+            title_exists = title_div.find(
+                'span', class_="x1lliihq x6ikm8r x10wlt62 x1n2onr6")
+            if title_exists:
+                titles_list.append(title_exists.text.strip())
+            else:
+                titles_list.append("No Title Provided")
 
-        prices_div = market_soup.find_all('span', class_="x193iq5w xeuugli x13faqbe x1vvkbs xlh3980 xvmahel x1n0sxbx x1lliihq x1s928wv xhkezso x1gmr53x x1cpjm7i x1fgarty x1943h6x x4zkp8e x3x7a5m x1lkfr7t x1lbecb7 x1s688f xzsf02u")
+        # finds prices, locations, mileage, image, urls and puts into lists
+        prices_div = market_soup.find_all(
+            'span', class_="x193iq5w xeuugli x13faqbe x1vvkbs xlh3980 xvmahel x1n0sxbx x1lliihq x1s928wv xhkezso x1gmr53x x1cpjm7i x1fgarty x1943h6x x4zkp8e x3x7a5m x1lkfr7t x1lbecb7 x1s688f xzsf02u")
         prices_list = [price.text.strip() for price in prices_div]
 
-        location_miles_div = market_soup.find_all('span', class_="x1lliihq x6ikm8r x10wlt62 x1n2onr6 xlyipyv xuxw1ft")
-        location_miles_list = [mile.text.strip() for mile in location_miles_div]
+        location_miles_div = market_soup.find_all(
+            'span', class_="x1lliihq x6ikm8r x10wlt62 x1n2onr6 xlyipyv xuxw1ft")
+        location_miles_list = [mile.text.strip()
+                               for mile in location_miles_div]
 
-        image_elems = market_soup.find_all('img', class_= "xt7dq6l xl1xv1r x6ikm8r x10wlt62 xh8yej3")
+        image_elems = market_soup.find_all(
+            'img', class_="xt7dq6l xl1xv1r x6ikm8r x10wlt62 xh8yej3")
         image_list = [image.get('src') for image in image_elems]
 
-        urls_elems = market_soup.find_all('a', class_= "x1i10hfl xjbqb8w x1ejq31n xd10rxx x1sy0etr x17r0tee x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g x1lku1pv")
+        urls_elems = market_soup.find_all(
+            'a', class_="x1i10hfl xjbqb8w x1ejq31n xd10rxx x1sy0etr x17r0tee x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g x1lku1pv")
         urls_list = [url.get('href') for url in urls_elems]
 
         print("titles length", len(titles_list))
@@ -44,7 +107,7 @@ class Fb_market_utils():
         print("miles_list", len(location_miles_list))
         print("urls_list", len(urls_list))
 
-        return ( titles_list, prices_list, image_list, location_miles_list, urls_list )
+        return (titles_list, prices_list, image_list, location_miles_list, urls_list)
 
     def append_locations_mileage(locations_mileage, CITY, STATE_ABBR):
         """Locations and Mileage data are lumped together when scraping from
@@ -61,7 +124,7 @@ class Fb_market_utils():
         # initialize empty list
         locations_mileage_appended = []
 
-        #iterate through the original mileage entries
+        # iterate through the original mileage entries
         for item in locations_mileage:
 
             # Current item is location, previous item is location (2 locations in a row)
@@ -70,7 +133,7 @@ class Fb_market_utils():
                 locations_mileage_appended.append(item)
 
             # Current item is empty string, Previous item is location (Miles is empty string)
-            elif len(item) == 0 and location_pattern.match(locations_mileage_appended[-1]) and len(locations_mileage_appended) >=1:
+            elif len(item) == 0 and location_pattern.match(locations_mileage_appended[-1]) and len(locations_mileage_appended) >= 1:
                 locations_mileage_appended.append('0K miles')
 
             # Previous item is miles, and current item is miles (Missing Location)
@@ -110,9 +173,8 @@ class Fb_market_utils():
         full_state_pattern_one = r'[a-zA-Z ]+[,]\s[A-Z][a-z]+'
         full_state_pattern_two = r'[a-zA-Z ]+[,]\s[A-Z][a-z]+\s[A-Z][a-z]+'
 
-
         mileage_clean = []
-        locations_clean =[]
+        locations_clean = []
 
         for item in locations_mileage_appended:
 
@@ -128,10 +190,11 @@ class Fb_market_utils():
 
             if match_miles_km or match_mileage_miles or match_location or match_full_state_one or match_full_state_two:
                 if match_miles_km:
-                    mileage_clean.append(int(match_miles_km.group(1)) *1000)
+                    mileage_clean.append(int(match_miles_km.group(1)) * 1000)
 
                 if match_mileage_miles:
-                    mileage_clean.append(int(float(match_mileage_miles.group(1))) *1000)
+                    mileage_clean.append(
+                        int(float(match_mileage_miles.group(1))) * 1000)
 
                 if match_location:
                     locations_clean.append(item)
@@ -141,10 +204,10 @@ class Fb_market_utils():
                     locations_clean.append(name_to_abbreviation[full_state])
 
             else:
-                print('NON-MATCHING MILES/LOCATION',item)
+                print('NON-MATCHING MILES/LOCATION', item)
 
-        print("locations_clean length",len(locations_clean))
-        print("miles_clean length",len(mileage_clean))
+        print("locations_clean length", len(locations_clean))
+        print("miles_clean length", len(mileage_clean))
 
         if len(locations_clean) != len(mileage_clean):
             print("Locations list length does not match mileage list length")
@@ -167,7 +230,7 @@ class Fb_market_utils():
             elif price == "$12,345":
                 prices_clean.append(0)
             else:
-                prices_clean.append(int(re.sub(r'[₹,A-Z,a-z,$,.]','', price)))
+                prices_clean.append(int(re.sub(r'[₹,A-Z,a-z,$,.]', '', price)))
 
         print("Successfully Cleaned Prices")
         return prices_clean
@@ -185,7 +248,8 @@ class Fb_market_utils():
 
     def organize_data(titles_list, locations_clean, mileage_clean, prices_clean,
                       urls_clean, image_list):
-        # add all values to a list of dictionaries
+        """Takes in organized lists of equal length, and organizes into a list
+        of vehicle dicts"""
 
         vehicles_list = []
 
@@ -197,33 +261,30 @@ class Fb_market_utils():
 
             year = 0
             year_pattern = r'[0-9]{4}'
-            year_match = re.search(year_pattern,titles_list[i])
+            year_match = re.search(year_pattern, titles_list[i])
             first_gen_years = [2000, 2001, 2002, 2003, 2004, 2005, 2006]
             parts_list = ["part", "wheel", "mirror", "door", "piece"]
 
-            #Checks for year
+            # Checks for year
             if year_match:
                 year = int(year_match[0])
 
-            #Checks if insight is actually in the title
+            # Checks if insight is actually in the title
             if "insight" in titles_list[i].lower():
                 insight = True
 
-            #Checks if any cars are 2000 - 2006
+            # Checks if any cars are 2000 - 2006
             if year_match:
                 if any(x == int(year_match[0]) for x in first_gen_years) and insight:
                     first_gen = True
 
-            #Checks if car listing is for parts
+            # Checks if car listing is for parts
             if any(x == parts_list for x in titles_list[i].lower()):
                 parts = True
 
-
-            #Splits up the City and State from location
+            # Splits up the City and State from location
             city = locations_clean[i].split(', ')[0]
             state = locations_clean[i].split(', ')[-1]
-
-
 
             # Map out key value pairs
             cars_dict["date"] = date.today()
@@ -244,17 +305,19 @@ class Fb_market_utils():
         return vehicles_list
 
     def data_to_csv(vehicles_list, location):
+        """converts and exports data into csv"""
+
         vehicles_df = pd.DataFrame(vehicles_list)
 
-
         filtered_df = vehicles_df[vehicles_df['insight'] == True]
-
 
         csv_file_path = f'/Users/evanishibashi/Projects/insight/csv/fb/{date.today()}/{location}.csv'
 
         filtered_df.to_csv(csv_file_path, index=False)
 
     def csv_to_db():
+        """Inserts CSV into DB"""
+
         # Load environment variables from .env file
         load_dotenv()
 
@@ -262,19 +325,18 @@ class Fb_market_utils():
         db_url = os.environ.get('DATABASE_URL')
         engine = create_engine(db_url)
 
-
         directory = f'../csv/fb/{date.today()}'
 
         for location_csv in os.listdir(directory):
-            full_file_path = os.path.join(directory,location_csv)
+            full_file_path = os.path.join(directory, location_csv)
 
             with open(full_file_path) as fb_listings:
                 clean_listings = []
                 csv_reader = DictReader(fb_listings)
                 for row in csv_reader:
-                    #convert string boolean values to actual Boolean
+                    # convert string boolean values to actual Boolean
                     for key, value in row.items():
-                        if value.lower() in ['true','false']:
+                        if value.lower() in ['true', 'false']:
                             row[key] = ast.literal_eval(value.title())
                     clean_listings.append(row)
 

@@ -8,104 +8,50 @@ respective page, and exports the cleaned data into csv file. It then inserts
 the data from those CSVs into my PSQL DB.
 """
 
-# In[289]:
 
-
-#import libraries
-#Need to pip install selenium
-import os
-from splinter import Browser
+# import libraries
 import time
-from datetime import date
 from selenium.webdriver.common.keys import Keys
 from state_name_to_abbr import name_to_abbreviation
 from fb_market_utils import Fb_market_utils
 
 
-# In[290]:
-
-
 # Set up splinter
-browser = Browser('chrome')
+browser = Fb_market_utils.create_browser()
 
-# base url
-base_url = "https://www.facebook.com/marketplace/sanfrancisco/search?"
-
-# search parameters
-deliveryMethod = "local_pick_up"
-query = "honda%20insight"
-availability = "in%20stock"
-
-# List of cities
-LOCATIONS = [
-    "San Francisco, California",
-    "Santa Clarita, California",
-    "San Diego, California",
-    "Seattle, Washington",
-    "New York, New York",
-    "Pittsburgh, Pennsylvania",
-    "Austin, Texas",
-    "Salt Lake City, Utah",
-    "Boulder, Colorado",
-    "Chicago, Illinois",
-    "Tampa, Florida",
-    "Minneapolis, Minnesota",
-    "Jackson, Mississippi",
-    "Raleigh, North Carolina",
-]
-
-#full url
-url = f"{base_url}availability={availability}&deliveryMethod={deliveryMethod}&query={query}"
-
-# Make new directory for the day if you have not yet
-if not os.path.exists(f'/Users/evanishibashi/Projects/insight/csv/fb/{date.today()}'):
-    os.mkdir(f'/Users/evanishibashi/Projects/insight/csv/fb/{date.today()}')
-
-#visit site
-browser.visit(url)
-
-
-# Exit out of pop up
-if browser.is_element_present_by_css('div[aria-label="Close"]', wait_time=10):
-    # Click on the element once it's found
-    browser.find_by_css('div[aria-label="Close"]').first.click()
+Fb_market_utils.set_up(browser)
 
 
 # MASSIVE LOOP STARTS!!!!!
 
-for i, location in enumerate(LOCATIONS):
+for i, location in enumerate(Fb_market_utils.LOCATIONS):
     print("STARTING CYCLE FOR ", location)
     CITY = location.split(", ")[0]
     STATE = location.split(", ")[1]
     STATE_ABBR = name_to_abbreviation[STATE]
 
-
     if i > 0:
-        browser.find_by_text(f'{LOCATIONS[i - 1]}').click()
+        browser.find_by_text(f'{Fb_market_utils.LOCATIONS[i - 1]}').click()
     else:
-        browser.find_by_text(f'{LOCATIONS[i]}').click()
-
-
+        browser.find_by_text(f'{Fb_market_utils.LOCATIONS[i]}').click()
 
     browser.find_by_css('input[aria-label="Location"]').click()
     time.sleep(1)
     while (len(browser.find_by_css('input[aria-label="Location"]').value)) > 0:
-        browser.find_by_css('input[aria-label="Location"]').type(Keys.BACKSPACE)
+        browser.find_by_css(
+            'input[aria-label="Location"]').type(Keys.BACKSPACE)
     time.sleep(1)
-    browser.find_by_css('input[aria-label="Location"]').type(f'{LOCATIONS[i]}')
+    browser.find_by_css(
+        'input[aria-label="Location"]').type(f'{Fb_market_utils.LOCATIONS[i]}')
     time.sleep(4)
-
 
     browser.find_by_css('input[aria-label="Location"]').type(Keys.DOWN)
     time.sleep(1)
     browser.find_by_css('input[aria-label="Location"]').type(Keys.ENTER)
     time.sleep(1)
 
-
-
     browser.find_by_css('div[aria-label="Apply"]').click()
     time.sleep(2)
-
 
     # scroll down to load more results
 
@@ -114,16 +60,16 @@ for i, location in enumerate(LOCATIONS):
     scroll_delay = 5
 
     for _ in range(scroll_count):
-        browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        browser.execute_script(
+            "window.scrollTo(0, document.body.scrollHeight);")
 
         time.sleep(scroll_delay)
-
-
 
     # Parse HTML
     html = browser.html
 
-    titles_list, prices_list, image_list, location_miles_list, urls_list = Fb_market_utils.parse_html(html)
+    titles_list, prices_list, image_list, location_miles_list, urls_list = Fb_market_utils.parse_html(
+        html)
 
     # Skips to next location if no listings
     if len(titles_list) == 0:
@@ -132,17 +78,15 @@ for i, location in enumerate(LOCATIONS):
 
     # appends filler locations / mileage data
     appended_mileage_locations = Fb_market_utils.append_locations_mileage(
-                                    location_miles_list, CITY, STATE_ABBR
-                                    )
+        location_miles_list, CITY, STATE_ABBR
+    )
 
     # cleans the appended data and splits into two lists
     (locations_clean, mileage_clean) = Fb_market_utils.separate_clean_locations_mileage(
-                                                        appended_mileage_locations
-                                                        )
+        appended_mileage_locations
+    )
     # cleans price data into Integers
     prices_clean = Fb_market_utils.clean_prices(prices_list)
-
-
 
     # Make URLS full url
     urls_clean = Fb_market_utils.clean_urls(urls_list)
@@ -164,8 +108,8 @@ for i, location in enumerate(LOCATIONS):
 
     # add all values to a list of dictionaries
     vehicles_list = Fb_market_utils.organize_data(titles_list,
-                                    locations_clean, mileage_clean,
-                                    prices_clean, urls_clean, image_list)
+                                                  locations_clean, mileage_clean,
+                                                  prices_clean, urls_clean, image_list)
 
     Fb_market_utils.data_to_csv(vehicles_list, location)
 
@@ -174,5 +118,3 @@ browser.quit()
 
 
 Fb_market_utils.csv_to_db()
-
-

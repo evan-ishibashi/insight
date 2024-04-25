@@ -4,12 +4,14 @@ db = SQLAlchemy()
 
 DEFAULT_INSIGHT_URL = 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/2001_Honda_Insight_Hybrid_1.0i_%28Interior%29.jpg/800px-2001_Honda_Insight_Hybrid_1.0i_%28Interior%29.jpg?20220806212143'
 
+
 def connect_db(app):
     """Connect to database."""
 
     app.app_context().push()
     db.app = app
     db.init_app(app)
+
 
 class Listing(db.Model):
     """Honda Insight Listing"""
@@ -20,7 +22,7 @@ class Listing(db.Model):
         db.Integer,
         primary_key=True,
         autoincrement=True
-        )
+    )
 
     date = db.Column(
         db.DateTime,
@@ -108,6 +110,7 @@ class Listing(db.Model):
             "year": self.year
         }
 
+
 class Parts(db.Model):
     """Honda Insight Parts Car"""
 
@@ -117,7 +120,7 @@ class Parts(db.Model):
         db.Integer,
         primary_key=True,
         autoincrement=True
-        )
+    )
 
     date = db.Column(
         db.DateTime,
@@ -217,7 +220,3 @@ class Parts(db.Model):
             "site": self.site,
             "year": self.year
         }
-
-
-
-

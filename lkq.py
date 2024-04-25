@@ -13,7 +13,7 @@ browser = Lkq.create_browser()
 for location in Lkq.locations:
     print(f'Starting process for {Lkq.locations[location]}')
 
-    browser = Lkq.navigate_browser(browser, 'honda insight', location)
+    Lkq.navigate_browser(browser, 'honda insight', location)
 
     market_soup = Lkq.get_html(browser)
 
@@ -37,13 +37,15 @@ for location in Lkq.locations:
     clean_img_list = Lkq.clean_imgs(img_list)
 
     vehicles_list = Lkq.organize_data(Lkq.locations[location], clean_title_list, clean_url_list,
-                                     clean_color_list, clean_vin_list,
-                                    clean_section_list, clean_row_list,
-                                    clean_space_list, clean_available_date_list,
-                                    img_list)
+                                      clean_color_list, clean_vin_list,
+                                      clean_section_list, clean_row_list,
+                                      clean_space_list, clean_available_date_list,
+                                      img_list)
 
     Lkq.data_to_csv(vehicles_list, location)
+
     print(f'Successfully Scraped for {Lkq.locations[location]}')
+
     if location == 'milwaukee-1256':
         browser.quit()
 
