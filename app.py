@@ -163,7 +163,7 @@ def get_listing_chart_data():
 
     listings = Listing.query.distinct(
         Listing.url).filter(Listing.date >= LAST_MONTH).filter(
-        Listing.first_gen).filter(Listing.mileage > 0).filter(
+        Listing.first_gen).filter(Listing.mileage > 3000).filter(
         Listing.parts.is_(False)).filter(Listing.year > 0).filter(
         Listing.price > 50).all()
 
