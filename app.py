@@ -1,10 +1,9 @@
 import os
 
 from flask import Flask, request, jsonify
-from flask_debugtoolbar import DebugToolbarExtension
 
-from models import db, connect_db, Listing
-from flask_cors import CORS, cross_origin
+from models import connect_db, Listing, Parts, db
+from flask_cors import CORS
 
 from datetime import date, timedelta
 
@@ -125,6 +124,27 @@ def get_all_offerup_listings_1g_only():
     serialized = [listing.serialize() for listing in listings]
 
     return jsonify(listings=serialized)
+
+@app.get('/parts')
+def get_all_parts():
+    """Returns list of listings from source offerup.
+
+    Can take a 'q' param in querystring to search for listing.
+    """
+    search = request.args.get('q')
+
+    if not search:
+        parts = Parts.query.distinct(
+            Parts.url).filter(Parts.date>=YESTERDAY).filter(
+                Parts.first_gen).all()
+    else:
+        parts = Parts.query.distinct(
+            Parts.url).filter(Parts.date>=YESTERDAY).filter(
+            Parts.title.ilike(f"%{search}%")).filter(Parts.first_gen).all()
+
+    serialized = [part.serialize() for part in parts]
+
+    return jsonify(parts=serialized)
 
 @app.get('/listings/chart')
 def get_listing_chart_data():

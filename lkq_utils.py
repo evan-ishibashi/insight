@@ -4,6 +4,12 @@ import os
 import re
 import pandas as pd
 from bs4 import BeautifulSoup as soup
+from dotenv import load_dotenv
+from sqlalchemy import create_engine
+from csv import DictReader
+from app import db
+from models import Parts
+import ast
 
 class Lkq():
     """Class for scraping LKQ Car Parts"""
@@ -76,10 +82,13 @@ class Lkq():
         'milwaukee-1256':'Millwaukee, WI',
     }
 
-    def create_browser(search_term,location):
+    def create_browser():
         # Set up splinter
         browser = Browser('chrome')
 
+        return browser
+
+    def navigate_browser(browser, search_term, location):
         # base url
         base_url = "https://www.lkqpickyourpart.com/inventory/"
 
@@ -174,11 +183,11 @@ class Lkq():
                 row_match = re.match(r'Row: ', info)
                 space_match = re.match(r'\Space: .*', info)
                 if section_match:
-                    clean_section_list.append(info.split(' ')[1])
+                    clean_section_list.append(info.split(': ')[1])
                 if row_match:
-                    clean_row_list.append(info.split(' ')[1])
+                    clean_row_list.append(info.split(': ')[1])
                 if space_match:
-                    clean_space_list.append(info.split(' ')[1])
+                    clean_space_list.append(info.split(': ')[1])
 
         return (clean_section_list, clean_row_list, clean_space_list)
 
@@ -253,6 +262,38 @@ class Lkq():
 
         vehicles_df.to_csv(csv_file_path, index=False)
 
+    def csv_to_db():
+        # Load environment variables from .env file
+        load_dotenv()
+
+        # Use the DATABASE_URL environment variable
+        db_url = os.environ.get('DATABASE_URL')
+        engine = create_engine(db_url)
+
+
+        directory = f'../csv/lkq/{date.today()}'
+
+        for location_csv in os.listdir(directory):
+            full_file_path = os.path.join(directory,location_csv)
+
+            with open(full_file_path) as fb_listings:
+                clean_listings = []
+                csv_reader = DictReader(fb_listings)
+                for row in csv_reader:
+                    #convert string boolean values to actual Boolean
+                    for key, value in row.items():
+                        if value.lower() in ['true','false']:
+                            row[key] = ast.literal_eval(value.title())
+                    clean_listings.append(row)
+
+                db.session.bulk_insert_mappings(Parts, clean_listings)
+
+                with engine.connect() as conn:
+                    conn.execute(Parts.__table__.insert(), clean_listings)
+                    conn.commit()
+
+        db.session.commit()
+
 class Lkq_insight(Lkq):
     def organize_data(location, clean_titles, clean_url_list, clean_color_list, clean_vin_list,
                       clean_section_list, clean_row_list, clean_space_list, clean_available_date_list, img_list):
@@ -308,12 +349,9 @@ class Lkq_insight(Lkq):
         vehicles_df = pd.DataFrame(vehicles_list)
 
 
-        filtered_df = vehicles_df[vehicles_df['insight'] == True]
+        csv_file_path = f'/Users/evanishibashi/Projects/insight/csv/lkq/{date.today()}/{location}.csv'
 
-
-        csv_file_path = f'/Users/evanishibashi/Projects/insight/csv/fb/{date.today()}/{location}.csv'
-
-        filtered_df.to_csv(csv_file_path, index=False)
+        vehicles_df.to_csv(csv_file_path, index=False)
 
 
 

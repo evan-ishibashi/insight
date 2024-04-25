@@ -108,6 +108,116 @@ class Listing(db.Model):
             "year": self.year
         }
 
+class Parts(db.Model):
+    """Honda Insight Parts Car"""
+
+    __tablename__ = "parts"
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True,
+        autoincrement=True
+        )
+
+    date = db.Column(
+        db.DateTime,
+        nullable=False
+    )
+
+    available = db.Column(
+        db.DateTime,
+        nullable=False
+    )
+
+    title = db.Column(
+        db.String(1000),
+        nullable=False
+    )
+
+    city = db.Column(
+        db.String(500),
+        nullable=False
+    )
+
+    state = db.Column(
+        db.String(20),
+        nullable=False
+    )
+
+    color = db.Column(
+        db.String(20),
+        nullable=False
+    )
+
+    vin = db.Column(
+        db.String(17),
+        nullable=False
+    )
+
+    section = db.Column(
+        db.String(10),
+        nullable=False
+    )
+
+    row = db.Column(
+        db.String(5),
+        nullable=False,
+        default='N/A'
+    )
+
+    space = db.Column(
+        db.String(5),
+        nullable=False
+    )
+
+    url = db.Column(
+        db.Text,
+        nullable=False
+    )
+
+    image = db.Column(
+        db.Text,
+        nullable=False,
+        default=DEFAULT_INSIGHT_URL
+    )
+
+    first_gen = db.Column(
+        db.Boolean,
+        nullable=False
+    )
+
+    site = db.Column(
+        db.String(15),
+        nullable=False
+    )
+    year = db.Column(
+        db.Integer,
+        nullable=False,
+        default=0
+    )
+
+    def serialize(self):
+        """Serialize to dictionary"""
+
+        return {
+            "id": self.id,
+            "date": self.date,
+            "available": self.available,
+            "title": self.title,
+            "city": self.city,
+            "state": self.state,
+            "color": self.color,
+            "vin": self.vin,
+            "section": self.section,
+            "row": self.row,
+            "space": self.space,
+            "url": self.url,
+            "image": self.image,
+            "first_gen": self.first_gen,
+            "site": self.site,
+            "year": self.year
+        }
+
 
 
 
