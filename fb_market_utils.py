@@ -99,7 +99,7 @@ class Fb_market_utils():
         image_list = [image.get('src') for image in image_elems]
 
         urls_elems = market_soup.find_all(
-            'a', class_="x1i10hfl xjbqb8w x1ejq31n xd10rxx x1sy0etr x17r0tee x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g x1lku1pv")
+            'a', class_="x1i10hfl xjbqb8w x1ejq31n xd10rxx x1sy0etr x17r0tee x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g x1sur9pj xkrqix3 x1lku1pv")
         urls_list = [url.get('href') for url in urls_elems]
 
         print("titles length", len(titles_list))
@@ -230,7 +230,7 @@ class Fb_market_utils():
             elif price == "$12,345":
                 prices_clean.append(0)
             else:
-                prices_clean.append(int(re.sub(r'[₹,A-Z,a-z,$,.]', '', price)))
+                prices_clean.append(int(re.sub(r'[₹,A-Z,a-z,$,.,€,£]', '', price)))
 
         print("Successfully Cleaned Prices")
         return prices_clean
@@ -263,7 +263,7 @@ class Fb_market_utils():
             year_pattern = r'[0-9]{4}'
             year_match = re.search(year_pattern, titles_list[i])
             first_gen_years = [2000, 2001, 2002, 2003, 2004, 2005, 2006]
-            parts_list = ["part", "wheel", "mirror", "door", "piece"]
+            parts_list = ["part", "wheel", "mirror", "door", "piece", "charger", "battery"]
 
             # Checks for year
             if year_match:
