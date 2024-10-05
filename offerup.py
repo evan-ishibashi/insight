@@ -119,6 +119,10 @@ for zipcode in zipcode_list:
     mileage_pattern = r'\s[0-9]+[k]'
     price_pattern = r'[$][0-9,]+'
 
+    # regex pattern for a full city / state. Ex: Seattle, Washington
+    full_state_pattern_one = r'[a-zA-Z ]+[,]\s[A-Z][a-z]+'
+    full_state_pattern_two = r'[a-zA-Z ]+[,]\s[A-Z][a-z]+\s[A-Z][a-z]+'
+
     for item in info_list:
 
         price_match = re.search(price_pattern, item)
@@ -143,7 +147,7 @@ for zipcode in zipcode_list:
             location_clean = location_match[0][4:]
             locations_list.append(location_clean)
         else:
-            locations_list.append(0)
+            locations_list.append('location, unknown')
 
     print('prices_list length', len(prices_list),
           '\nmileage_list length', len(mileage_list),
